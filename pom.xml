@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>net.kuper.tz</groupId>
-        <artifactId>tuzhi</artifactId>
+        <artifactId>tz-parent</artifactId>
         <version>1.0.0</version>
     </parent>
 
