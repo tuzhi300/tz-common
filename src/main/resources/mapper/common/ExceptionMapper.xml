@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.common.dao.ExceptionDao">
+
+    <resultMap id="exceptionMap" type="net.kuper.tz.common.entity.ExceptionEntity">
+        <result property="id" column="id"/>
+        <result property="clazz" column="clazz"/>
+        <result property="method" column="method"/>
+        <result property="lineNum" column="line_num"/>
+        <result property="type" column="type"/>
+        <result property="message" column="message"/>
+        <result property="error" column="error"/>
+        <result property="fixStatus" column="fix_status"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="delete_time"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`clazz` ,
+        `t`.`method` ,
+        `t`.`line_num` ,
+        `t`.`type` ,
+        `t`.`message` ,
+        `t`.`error` ,
+        `t`.`fix_status` ,
+        `t`.`update_time` ,
+        `t`.`create_time` ,
+        `t`.`delete_time`
+    </sql>
+
+
+    <sql id="simple_columns">
+        `t`.`id` ,
+        `t`.`clazz` ,
+        `t`.`method` ,
+        `t`.`line_num` ,
+        `t`.`type` ,
+        `t`.`message` ,
+        `t`.`fix_status` ,
+        `t`.`update_time` ,
+        `t`.`create_time` ,
+        `t`.`delete_time`
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="simple_columns"/>
+        from  `sys_exception` as `t`
+    </sql>
+
+    <sql id="dft_where">
+        <if test="clazz != null and clazz.trim() != ''">
+            AND `t`.`clazz` LIKE concat('%',#{clazz} ,'%')
+        </if>
+        <if test="method != null and method.trim() != ''">
+            AND `t`.`method` LIKE concat('%',#{method} ,'%')
+        </if>
+        <if test="lineNum != null">
+            AND `t`.`line_num` = #{lineNum}
+        </if>
+        <if test="type != null and type.trim() != ''">
+            AND `t`.`type` LIKE concat('%',#{type} ,'%')
+        </if>
+        <if test="message != null and message.trim() != ''">
+            AND `t`.`message` LIKE concat('%',#{message} ,'%')
+        </if>
+        <if test="error != null and error.trim() != ''">
+            AND `t`.`error` LIKE concat('%',#{error} ,'%')
+        </if>
+        <if test="fixStatus != null">
+            AND `t`.`fix_status` = #{fixStatus}
+        </if>
+        <if test="updateTime != null">
+            AND date_format(`t`.`update_time`,'%Y-%m-%d') = date_format(#{updateTime},'%Y-%m-%d')
+        </if>
+        <if test="createTime != null">
+            AND date_format(`t`.`create_time`,'%Y-%m-%d') = date_format(#{createTime},'%Y-%m-%d')
+        </if>
+        <if test="deleteTime != null">
+            AND date_format(`t`.`delete_time`,'%Y-%m-%d') = date_format(#{deleteTime},'%Y-%m-%d')
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'clazz' == sidx ">
+                        order by `t`.`clazz`
+                    </when>
+                    <when test="'method' == sidx ">
+                        order by `t`.`method`
+                    </when>
+                    <when test="'lineNum' == sidx ">
+                        order by `t`.`line_num`
+                    </when>
+                    <when test="'type' == sidx ">
+                        order by `t`.`type`
+                    </when>
+                    <when test="'message' == sidx ">
+                        order by `t`.`message`
+                    </when>
+                    <when test="'error' == sidx ">
+                        order by `t`.`error`
+                    </when>
+                    <when test="'fixStatus' == sidx ">
+                        order by `t`.`fix_status`
+                    </when>
+                    <when test="'updateTime' == sidx ">
+                        order by `t`.`update_time`
+                    </when>
+                    <when test="'createTime' == sidx ">
+                        order by `t`.`create_time`
+                    </when>
+                    <when test="'deleteTime' == sidx ">
+                        order by `t`.`delete_time`
+                    </when>
+                    <otherwise>
+                        order by `t`.`create_time`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`create_time`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'ASC'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <select id="queryObject" resultMap="exceptionMap">
+        select
+        <include refid="columns"/>
+        from  `sys_exception` as `t`
+        where `t`.`id` = #{value}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="exceptionMap">
+        select
+        <include refid="simple_columns"/>,
+        sec.count
+        from  `sys_exception` as `t`
+        left join (
+            select count(0) as count,
+                sec.exception_id
+            from sys_exception_case sec
+            group by sec.exception_id
+        ) sec on sec.exception_id = t.id
+        WHERE t.delete_time is null
+        <include refid="dft_where"/>
+        order by t.fix_status asc , sec.count desc
+    </select>
+
+    <select id="querySameException" parameterType="map" resultMap="exceptionMap">
+        <include refid="select_normal"/>
+        WHERE t.delete_time is null
+        AND `t`.`clazz` = #{clazz}
+        AND `t`.`method` = #{method}
+        AND `t`.`line_num` = #{lineNum}
+        AND `t`.`type` = #{type}
+        AND `t`.`fix_status` = 0
+        limit 1
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.common.entity.ExceptionUpdateEntity" >
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select REPLACE(UUID(),'-','') from dual
+        </selectKey>
+        insert into `sys_exception`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="clazz != null">
+                `clazz` ,
+            </if>
+            <if test="method != null">
+                `method` ,
+            </if>
+            <if test="lineNum != null">
+                `line_num` ,
+            </if>
+            <if test="type != null">
+                `type` ,
+            </if>
+            <if test="message != null">
+                `message` ,
+            </if>
+            <if test="error != null">
+                `error` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="clazz != null">
+                #{clazz} ,
+            </if>
+            <if test="method != null">
+                #{method} ,
+            </if>
+            <if test="lineNum != null">
+                #{lineNum} ,
+            </if>
+            <if test="type != null">
+                #{type} ,
+            </if>
+            <if test="message != null">
+                #{message} ,
+            </if>
+            <if test="error != null">
+                #{error} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.common.entity.ExceptionUpdateEntity">
+        update `sys_exception`
+        <set>
+            <if test="clazz != null">
+                `clazz` = #{clazz} ,
+            </if>
+            <if test="method != null">
+                `method` = #{method} ,
+            </if>
+            <if test="lineNum != null">
+                `line_num` = #{lineNum} ,
+            </if>
+            <if test="type != null">
+                `type` = #{type} ,
+            </if>
+            <if test="message != null">
+                `message` = #{message} ,
+            </if>
+            <if test="error != null">
+                `error` = #{error} ,
+            </if>
+            <if test="fixStatus != null">
+                `fix_status` = #{fixStatus} ,
+            </if>
+            `update_time` = now() ,
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <update id="delete">
+        update `sys_exception` set delete_time = now(), `update_time` = now()  where `id` = #{value}
+    </update>
+
+    <update id="deleteBatch">
+        update `sys_exception` set delete_time = now(), `update_time` = now() where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>

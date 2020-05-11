@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.common.dao.IpLocationDao">
+
+    <resultMap id="ipLocationMap" type="net.kuper.tz.common.entity.IpLocationEntity">
+        <result property="id" column="id"/>
+        <result property="ip" column="ip"/>
+        <result property="province" column="province"/>
+        <result property="city" column="city"/>
+        <result property="district" column="district"/>
+        <result property="address" column="address"/>
+        <result property="shortAddress" column="short_address"/>
+        <result property="cityCode" column="city_code"/>
+        <result property="source" column="source"/>
+        <result property="business" column="business"/>
+        <result property="centerX" column="center_x"/>
+        <result property="centerY" column="center_y"/>
+        <result property="rectangleLeftBottomX" column="rectangle_left_bottom_x"/>
+        <result property="rectangleLeftBottomY" column="rectangle_left_bottom_y"/>
+        <result property="rectangleRightTopX" column="rectangle_right_top_x"/>
+        <result property="rectangleRightTopY" column="rectangle_right_top_y"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`ip` ,
+        `t`.`province` ,
+        `t`.`city` ,
+        `t`.`district` ,
+        `t`.`address` ,
+        `t`.`short_address` ,
+        `t`.`city_code` ,
+        `t`.`source` ,
+        `t`.`business` ,
+        `t`.`center_x` ,
+        `t`.`center_y` ,
+        `t`.`rectangle_left_bottom_x` ,
+        `t`.`rectangle_left_bottom_y` ,
+        `t`.`rectangle_right_top_x` ,
+        `t`.`rectangle_right_top_y` ,
+        `t`.`update_time` ,
+        `t`.`create_time` ,
+        `t`.`status` 
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="columns"/>
+        from `sys_ip_location` as `t`
+    </sql>
+
+    <sql id="dft_where">
+        <if test="ip != null and ip.trim() != ''">
+            AND `t`.`ip` LIKE concat('%',#{ip} ,'%')
+        </if>
+        <if test="province != null and province.trim() != ''">
+            AND `t`.`province` LIKE concat('%',#{province} ,'%')
+        </if>
+        <if test="city != null and city.trim() != ''">
+            AND `t`.`city` LIKE concat('%',#{city} ,'%')
+        </if>
+        <if test="district != null and district.trim() != ''">
+            AND `t`.`district` LIKE concat('%',#{district} ,'%')
+        </if>
+        <if test="address != null and address.trim() != ''">
+            AND `t`.`address` LIKE concat('%',#{address} ,'%')
+        </if>
+        <if test="shortAddress != null and shortAddress.trim() != ''">
+            AND `t`.`short_address` LIKE concat('%',#{shortAddress} ,'%')
+        </if>
+        <if test="cityCode != null and cityCode.trim() != ''">
+            AND `t`.`city_code` LIKE concat('%',#{cityCode} ,'%')
+        </if>
+        <if test="source != null">
+            AND `t`.`source` = #{source}
+        </if>
+        <if test="business != null and business.trim() != ''">
+            AND `t`.`business` LIKE concat('%',#{business} ,'%')
+        </if>
+        <if test="centerX != null and centerX.trim() != ''">
+            AND `t`.`center_x` LIKE concat('%',#{centerX} ,'%')
+        </if>
+        <if test="centerY != null and centerY.trim() != ''">
+            AND `t`.`center_y` LIKE concat('%',#{centerY} ,'%')
+        </if>
+        <if test="rectangleLeftBottomX != null and rectangleLeftBottomX.trim() != ''">
+            AND `t`.`rectangle_left_bottom_x` LIKE concat('%',#{rectangleLeftBottomX} ,'%')
+        </if>
+        <if test="rectangleLeftBottomY != null and rectangleLeftBottomY.trim() != ''">
+            AND `t`.`rectangle_left_bottom_y` LIKE concat('%',#{rectangleLeftBottomY} ,'%')
+        </if>
+        <if test="rectangleRightTopX != null and rectangleRightTopX.trim() != ''">
+            AND `t`.`rectangle_right_top_x` LIKE concat('%',#{rectangleRightTopX} ,'%')
+        </if>
+        <if test="rectangleRightTopY != null and rectangleRightTopY.trim() != ''">
+            AND `t`.`rectangle_right_top_y` LIKE concat('%',#{rectangleRightTopY} ,'%')
+        </if>
+        <if test="updateTime != null">
+            AND date_format(`t`.`update_time`,'%Y-%m-%d') = date_format(#{updateTime},'%Y-%m-%d')
+        </if>
+        <if test="createTime != null">
+            AND date_format(`t`.`create_time`,'%Y-%m-%d') = date_format(#{createTime},'%Y-%m-%d')
+        </if>
+        <if test="status != null">
+            AND `t`.`status` = #{status}
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'ip' == sidx ">
+                        order by `t`.`ip`
+                    </when>
+                    <when test="'province' == sidx ">
+                        order by `t`.`province`
+                    </when>
+                    <when test="'city' == sidx ">
+                        order by `t`.`city`
+                    </when>
+                    <when test="'district' == sidx ">
+                        order by `t`.`district`
+                    </when>
+                    <when test="'address' == sidx ">
+                        order by `t`.`address`
+                    </when>
+                    <when test="'shortAddress' == sidx ">
+                        order by `t`.`short_address`
+                    </when>
+                    <when test="'cityCode' == sidx ">
+                        order by `t`.`city_code`
+                    </when>
+                    <when test="'source' == sidx ">
+                        order by `t`.`source`
+                    </when>
+                    <when test="'business' == sidx ">
+                        order by `t`.`business`
+                    </when>
+                    <when test="'centerX' == sidx ">
+                        order by `t`.`center_x`
+                    </when>
+                    <when test="'centerY' == sidx ">
+                        order by `t`.`center_y`
+                    </when>
+                    <when test="'rectangleLeftBottomX' == sidx ">
+                        order by `t`.`rectangle_left_bottom_x`
+                    </when>
+                    <when test="'rectangleLeftBottomY' == sidx ">
+                        order by `t`.`rectangle_left_bottom_y`
+                    </when>
+                    <when test="'rectangleRightTopX' == sidx ">
+                        order by `t`.`rectangle_right_top_x`
+                    </when>
+                    <when test="'rectangleRightTopY' == sidx ">
+                        order by `t`.`rectangle_right_top_y`
+                    </when>
+                    <when test="'updateTime' == sidx ">
+                        order by `t`.`update_time`
+                    </when>
+                    <when test="'createTime' == sidx ">
+                        order by `t`.`create_time`
+                    </when>
+                    <when test="'status' == sidx ">
+                        order by `t`.`status`
+                    </when>
+                    <otherwise>
+                        order by `t`.`create_time`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`create_time`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'ASC'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <select id="queryObject" resultMap="ipLocationMap">
+        <include refid="select_normal"/>
+        where `t`.`id` = #{value}
+    </select>
+    <!--两天内有效-->
+    <select id="queryLastObj" resultMap="ipLocationMap">
+        <include refid="select_normal"/>
+        where `t`.`ip` = #{ip}
+        and t.create_time > date_sub(now(), interval 2 day)
+        limit 1
+    </select>
+    <!--    两天内新增的IP，且未解析或解析失败超过两小时 -->
+    <select id="queryLastNotParse" resultMap="ipLocationMap">
+        <include refid="select_normal"/>
+        where date_sub(now(), interval 2 hour) > t.update_time
+        or t.update_time is null
+        and t.create_time > date_sub(now(), interval 2 day)
+        and t.status = 0
+        and t.ip not like '192.168%'
+        and t.ip != '127.0.0.1'
+        and t.ip != '0:0:0:0:0:0:0:1'
+        limit #{limit}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="ipLocationMap">
+        <include refid="select_normal"/>
+        WHERE 1 = 1
+        <include refid="dft_where"/>
+        <include refid="dft_order"/>
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.common.entity.IpLocationUpdateEntity">
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select REPLACE(UUID(),'-','') from dual
+        </selectKey>
+        insert into `sys_ip_location`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="ip != null">
+                `ip` ,
+            </if>
+            <if test="province != null">
+                `province` ,
+            </if>
+            <if test="city != null">
+                `city` ,
+            </if>
+            <if test="district != null">
+                `district` ,
+            </if>
+            <if test="address != null">
+                `address` ,
+            </if>
+            <if test="shortAddress != null">
+                `short_address` ,
+            </if>
+            <if test="cityCode != null">
+                `city_code` ,
+            </if>
+            <if test="source != null">
+                `source` ,
+            </if>
+            <if test="business != null">
+                `business` ,
+            </if>
+            <if test="centerX != null">
+                `center_x` ,
+            </if>
+            <if test="centerY != null">
+                `center_y` ,
+            </if>
+            <if test="rectangleLeftBottomX != null">
+                `rectangle_left_bottom_x` ,
+            </if>
+            <if test="rectangleLeftBottomY != null">
+                `rectangle_left_bottom_y` ,
+            </if>
+            <if test="rectangleRightTopX != null">
+                `rectangle_right_top_x` ,
+            </if>
+            <if test="rectangleRightTopY != null">
+                `rectangle_right_top_y` ,
+            </if>
+            <if test="updateTime != null">
+                `update_time` ,
+            </if>
+            <if test="createTime != null">
+                `create_time` ,
+            </if>
+            <if test="status != null">
+                `status` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="ip != null">
+                #{ip} ,
+            </if>
+            <if test="province != null">
+                #{province} ,
+            </if>
+            <if test="city != null">
+                #{city} ,
+            </if>
+            <if test="district != null">
+                #{district} ,
+            </if>
+            <if test="address != null">
+                #{address} ,
+            </if>
+            <if test="shortAddress != null">
+                #{short_address} ,
+            </if>
+            <if test="cityCode != null">
+                #{cityCode} ,
+            </if>
+            <if test="source != null">
+                #{source} ,
+            </if>
+            <if test="business != null">
+                #{business} ,
+            </if>
+            <if test="centerX != null">
+                #{centerX} ,
+            </if>
+            <if test="centerY != null">
+                #{centerY} ,
+            </if>
+            <if test="rectangleLeftBottomX != null">
+                #{rectangleLeftBottomX} ,
+            </if>
+            <if test="rectangleLeftBottomY != null">
+                #{rectangleLeftBottomY} ,
+            </if>
+            <if test="rectangleRightTopX != null">
+                #{rectangleRightTopX} ,
+            </if>
+            <if test="rectangleRightTopY != null">
+                #{rectangleRightTopY} ,
+            </if>
+            <if test="updateTime != null">
+                #{updateTime} ,
+            </if>
+            <if test="createTime != null">
+                #{createTime} ,
+            </if>
+            <if test="status != null">
+                #{status} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.common.entity.IpLocationUpdateEntity">
+        update `sys_ip_location`
+        <set>
+            <if test="ip != null">
+                `ip` = #{ip} ,
+            </if>
+            <if test="province != null">
+                `province` = #{province} ,
+            </if>
+            <if test="city != null">
+                `city` = #{city} ,
+            </if>
+            <if test="district != null">
+                `district` = #{district} ,
+            </if>
+            <if test="address != null">
+                `address` = #{address} ,
+            </if>
+            <if test="shortAddress != null">
+                `short_address` = #{address} ,
+            </if>
+            <if test="cityCode != null">
+                `city_code` = #{cityCode} ,
+            </if>
+            <if test="source != null">
+                `source` = #{source} ,
+            </if>
+            <if test="business != null">
+                `business` = #{business} ,
+            </if>
+            <if test="centerX != null">
+                `center_x` = #{centerX} ,
+            </if>
+            <if test="centerY != null">
+                `center_y` = #{centerY} ,
+            </if>
+            <if test="rectangleLeftBottomX != null">
+                `rectangle_left_bottom_x` = #{rectangleLeftBottomX} ,
+            </if>
+            <if test="rectangleLeftBottomY != null">
+                `rectangle_left_bottom_y` = #{rectangleLeftBottomY} ,
+            </if>
+            <if test="rectangleRightTopX != null">
+                `rectangle_right_top_x` = #{rectangleRightTopX} ,
+            </if>
+            <if test="rectangleRightTopY != null">
+                `rectangle_right_top_y` = #{rectangleRightTopY} ,
+            </if>
+            <if test="updateTime != null">
+                `update_time` = #{updateTime} ,
+            </if>
+            <if test="createTime != null">
+                `create_time` = #{createTime} ,
+            </if>
+            <if test="status != null">
+                `status` = #{status} ,
+            </if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <delete id="delete">
+        delete from `sys_ip_location` where `id` = #{value}
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from `sys_ip_location` where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+</mapper>

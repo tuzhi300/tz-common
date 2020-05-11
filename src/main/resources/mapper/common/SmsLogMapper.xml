@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.common.dao.SmsLogDao">
+
+    <resultMap id="smsLogMap" type="net.kuper.tz.common.entity.SmsLogEntity">
+        <result property="id" column="id"/>
+        <result property="remarks" column="remarks"/>
+        <result property="businessType" column="business_type"/>
+        <result property="phone" column="phone"/>
+        <result property="templateId" column="template_id"/>
+        <result property="templateContent" column="template_content"/>
+        <result property="senddata" column="senddata"/>
+        <result property="status" column="status"/>
+        <result property="smsid" column="smsid"/>
+        <result property="code" column="code"/>
+        <result property="msg" column="msg"/>
+        <result property="flag" column="flag"/>
+        <result property="responseDate" column="response_date"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="delete_time"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`remarks` ,
+        `t`.`business_type` ,
+        `t`.`phone` ,
+        `t`.`template_id` ,
+        `t`.`template_content` ,
+        `t`.`senddata` ,
+        `t`.`status` ,
+        `t`.`smsid` ,
+        `t`.`code` ,
+        `t`.`msg` ,
+        `t`.`flag` ,
+        `t`.`response_date` ,
+        `t`.`update_time` ,
+        `t`.`create_time` ,
+        `t`.`delete_time`
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="columns"/>
+        from  `sys_sms_log` as `t`
+    </sql>
+
+    <sql id="dft_where">
+        <if test="remarks != null and remarks.trim() != ''">
+            AND `t`.`remarks` LIKE concat('%',#{remarks} ,'%')
+        </if>
+        <if test="businessType != null and businessType.trim() != ''">
+            AND `t`.`business_type` LIKE concat('%',#{businessType} ,'%')
+        </if>
+        <if test="phone != null and phone.trim() != ''">
+            AND `t`.`phone` LIKE concat('%',#{phone} ,'%')
+        </if>
+        <if test="templateId != null and templateId.trim() != ''">
+            AND `t`.`template_id` LIKE concat('%',#{templateId} ,'%')
+        </if>
+        <if test="templateContent != null and templateContent.trim() != ''">
+            AND `t`.`template_content` LIKE concat('%',#{templateContent} ,'%')
+        </if>
+        <if test="senddata != null and senddata.trim() != ''">
+            AND `t`.`senddata` LIKE concat('%',#{senddata} ,'%')
+        </if>
+        <if test="status != null and status.trim() != ''">
+            AND `t`.`status` LIKE concat('%',#{status} ,'%')
+        </if>
+        <if test="smsid != null and smsid.trim() != ''">
+            AND `t`.`smsid` LIKE concat('%',#{smsid} ,'%')
+        </if>
+        <if test="code != null and code.trim() != ''">
+            AND `t`.`code` LIKE concat('%',#{code} ,'%')
+        </if>
+        <if test="msg != null and msg.trim() != ''">
+            AND `t`.`msg` LIKE concat('%',#{msg} ,'%')
+        </if>
+        <if test="flag != null">
+            AND `t`.`flag` = #{flag}
+        </if>
+        <if test="responseDate != null">
+            AND date_format(`t`.`response_date`,'%Y-%m-%d') = date_format(#{responseDate},'%Y-%m-%d')
+        </if>
+        <if test="updateTime != null">
+            AND date_format(`t`.`update_time`,'%Y-%m-%d') = date_format(#{updateTime},'%Y-%m-%d')
+        </if>
+        <if test="createTime != null">
+            AND date_format(`t`.`create_time`,'%Y-%m-%d') = date_format(#{createTime},'%Y-%m-%d')
+        </if>
+        <if test="deleteTime != null">
+            AND date_format(`t`.`delete_time`,'%Y-%m-%d') = date_format(#{deleteTime},'%Y-%m-%d')
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'remarks' == sidx ">
+                        order by `t`.`remarks`
+                    </when>
+                    <when test="'businessType' == sidx ">
+                        order by `t`.`business_type`
+                    </when>
+                    <when test="'phone' == sidx ">
+                        order by `t`.`phone`
+                    </when>
+                    <when test="'templateId' == sidx ">
+                        order by `t`.`template_id`
+                    </when>
+                    <when test="'templateContent' == sidx ">
+                        order by `t`.`template_content`
+                    </when>
+                    <when test="'senddata' == sidx ">
+                        order by `t`.`senddata`
+                    </when>
+                    <when test="'status' == sidx ">
+                        order by `t`.`status`
+                    </when>
+                    <when test="'smsid' == sidx ">
+                        order by `t`.`smsid`
+                    </when>
+                    <when test="'code' == sidx ">
+                        order by `t`.`code`
+                    </when>
+                    <when test="'msg' == sidx ">
+                        order by `t`.`msg`
+                    </when>
+                    <when test="'flag' == sidx ">
+                        order by `t`.`flag`
+                    </when>
+                    <when test="'responseDate' == sidx ">
+                        order by `t`.`response_date`
+                    </when>
+                    <when test="'updateTime' == sidx ">
+                        order by `t`.`update_time`
+                    </when>
+                    <when test="'createTime' == sidx ">
+                        order by `t`.`create_time`
+                    </when>
+                    <when test="'deleteTime' == sidx ">
+                        order by `t`.`delete_time`
+                    </when>
+                    <otherwise>
+                        order by `t`.`id`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`id`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'ASC'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <select id="queryObject" resultMap="smsLogMap">
+        <include refid="select_normal"/>
+        where `t`.`id` = #{value}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="smsLogMap">
+        <include refid="select_normal"/>
+        WHERE 1 = 1
+        <include refid="dft_where"/>
+        <include refid="dft_order"/>
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.common.entity.SmsLogUpdateEntity" >
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select REPLACE(UUID(),'-','') from dual
+        </selectKey>
+        insert into `sys_sms_log`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="remarks != null">
+                `remarks` ,
+            </if>
+            <if test="businessType != null">
+                `business_type` ,
+            </if>
+            <if test="phone != null">
+                `phone` ,
+            </if>
+            <if test="templateId != null">
+                `template_id` ,
+            </if>
+            <if test="templateContent != null">
+                `template_content` ,
+            </if>
+            <if test="senddata != null">
+                `senddata` ,
+            </if>
+            <if test="status != null">
+                `status` ,
+            </if>
+            <if test="smsid != null">
+                `smsid` ,
+            </if>
+            <if test="code != null">
+                `code` ,
+            </if>
+            <if test="msg != null">
+                `msg` ,
+            </if>
+            <if test="flag != null">
+                `flag` ,
+            </if>
+            <if test="responseDate != null">
+                `response_date` ,
+            </if>
+            <if test="updateTime != null">
+                `update_time` ,
+            </if>
+            <if test="createTime != null">
+                `create_time` ,
+            </if>
+            <if test="deleteTime != null">
+                `delete_time` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="remarks != null">
+                #{remarks} ,
+            </if>
+            <if test="businessType != null">
+                #{businessType} ,
+            </if>
+            <if test="phone != null">
+                #{phone} ,
+            </if>
+            <if test="templateId != null">
+                #{templateId} ,
+            </if>
+            <if test="templateContent != null">
+                #{templateContent} ,
+            </if>
+            <if test="senddata != null">
+                #{senddata} ,
+            </if>
+            <if test="status != null">
+                #{status} ,
+            </if>
+            <if test="smsid != null">
+                #{smsid} ,
+            </if>
+            <if test="code != null">
+                #{code} ,
+            </if>
+            <if test="msg != null">
+                #{msg} ,
+            </if>
+            <if test="flag != null">
+                #{flag} ,
+            </if>
+            <if test="responseDate != null">
+                #{responseDate} ,
+            </if>
+            <if test="updateTime != null">
+                #{updateTime} ,
+            </if>
+            <if test="createTime != null">
+                #{createTime} ,
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.common.entity.SmsLogUpdateEntity">
+        update `sys_sms_log`
+        <set>
+            <if test="remarks != null">
+                `remarks` = #{remarks} ,
+            </if>
+            <if test="businessType != null">
+                `business_type` = #{businessType} ,
+            </if>
+            <if test="phone != null">
+                `phone` = #{phone} ,
+            </if>
+            <if test="templateId != null">
+                `template_id` = #{templateId} ,
+            </if>
+            <if test="templateContent != null">
+                `template_content` = #{templateContent} ,
+            </if>
+            <if test="senddata != null">
+                `senddata` = #{senddata} ,
+            </if>
+            <if test="status != null">
+                `status` = #{status} ,
+            </if>
+            <if test="smsid != null">
+                `smsid` = #{smsid} ,
+            </if>
+            <if test="code != null">
+                `code` = #{code} ,
+            </if>
+            <if test="msg != null">
+                `msg` = #{msg} ,
+            </if>
+            <if test="flag != null">
+                `flag` = #{flag} ,
+            </if>
+            <if test="responseDate != null">
+                `response_date` = #{responseDate} ,
+            </if>
+            <if test="updateTime != null">
+                `update_time` = #{updateTime} ,
+            </if>
+            <if test="createTime != null">
+                `create_time` = #{createTime} ,
+            </if>
+            <if test="deleteTime != null">
+                `delete_time` = #{deleteTime} ,
+            </if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <update id="delete">
+        update `sys_sms_log` set delete_time = now() where `id` = #{value}
+    </update>
+
+    <update id="deleteBatch">
+        update `sys_sms_log` set delete_time = now() where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>

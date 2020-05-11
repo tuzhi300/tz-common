@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.common.dao.MacroDao">
+
+    <resultMap id="macroMap" type="net.kuper.tz.common.entity.MacroEntity">
+        <result property="id" column="id"/>
+        <result property="parentKey" column="parent_key"/>
+        <result property="displayName" column="display_name"/>
+        <result property="key" column="key"/>
+        <result property="value" column="value"/>
+        <result property="status" column="status"/>
+        <result property="type" column="type"/>
+        <result property="edit" column="edit"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="remark" column="remark"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="delete_time"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`parent_key` ,
+        `t`.`display_name` ,
+        `t`.`key` ,
+        `t`.`value` ,
+        `t`.`status` ,
+        `t`.`type` ,
+        `t`.`edit` ,
+        `t`.`order_num` ,
+        `t`.`remark` ,
+        `t`.`update_time` ,
+        `t`.`create_time` ,
+        `t`.`delete_time`
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="columns"/>
+        from  `sys_macro` as `t`
+    </sql>
+
+    <sql id="dft_where">
+        <if test="parentKey != null and parentKey.trim() != ''">
+            AND `t`.`parent_key` LIKE concat('%',#{parentKey} ,'%')
+        </if>
+        <if test="displayName != null and displayName.trim() != ''">
+            AND `t`.`display_name` LIKE concat('%',#{displayName} ,'%')
+        </if>
+        <if test="key != null and key.trim() != ''">
+            AND `t`.`key` LIKE concat('%',#{key} ,'%')
+        </if>
+        <if test="value != null and value.trim() != ''">
+            AND `t`.`value` LIKE concat('%',#{value} ,'%')
+        </if>
+        <if test="status != null">
+            AND `t`.`status` = #{status}
+        </if>
+        <if test="type != null">
+            AND `t`.`type` = #{type}
+        </if>
+        <if test="edit != null">
+            AND `t`.`edit` = #{edit}
+        </if>
+        <if test="orderNum != null">
+            AND `t`.`order_num` = #{orderNum}
+        </if>
+        <if test="remark != null and remark.trim() != ''">
+            AND `t`.`remark` LIKE concat('%',#{remark} ,'%')
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'parentKey' == sidx ">
+                        order by `t`.`parent_key`
+                    </when>
+                    <when test="'displayName' == sidx ">
+                        order by `t`.`display_name`
+                    </when>
+                    <when test="'key' == sidx ">
+                        order by `t`.`key`
+                    </when>
+                    <when test="'value' == sidx ">
+                        order by `t`.`value`
+                    </when>
+                    <when test="'status' == sidx ">
+                        order by `t`.`status`
+                    </when>
+                    <when test="'type' == sidx ">
+                        order by `t`.`type`
+                    </when>
+                    <when test="'edit' == sidx ">
+                        order by `t`.`edit`
+                    </when>
+                    <when test="'orderNum' == sidx ">
+                        order by `t`.`order_num`
+                    </when>
+                    <when test="'remark' == sidx ">
+                        order by `t`.`remark`
+                    </when>
+                    <otherwise>
+                        order by `t`.`order_num`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`order_num`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'DESC'">
+                DESC
+            </when>
+            <otherwise>
+                ASC
+            </otherwise>
+        </choose>
+    </sql>
+
+    <select id="queryObject" resultMap="macroMap">
+        <include refid="select_normal"/>
+        where `t`.`id` = #{value}
+    </select>
+
+    <select id="queryObjectByKey" resultMap="macroMap">
+        <include refid="select_normal"/>
+        where `t`.`key` = #{value}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="macroMap">
+        <include refid="select_normal"/>
+        WHERE  t.delete_time is null
+        <include refid="dft_where"/>
+        <include refid="dft_order"/>
+    </select>
+
+    <!-- 查询一级字典-->
+    <select id="queryTypeList" parameterType="map" resultMap="macroMap">
+        <include refid="select_normal"/>
+        WHERE  t.delete_time is null
+        and t.parent_key is null
+        order by `t`.`order_num` ASC
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.common.entity.MacroUpdateEntity" >
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select REPLACE(UUID(),'-','') from dual
+        </selectKey>
+        insert into `sys_macro`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="parentKey != null">
+                `parent_key` ,
+            </if>
+            <if test="displayName != null">
+                `display_name` ,
+            </if>
+            <if test="key != null">
+                `key` ,
+            </if>
+            <if test="value != null">
+                `value` ,
+            </if>
+            <if test="status != null">
+                `status` ,
+            </if>
+            <if test="type != null">
+                `type` ,
+            </if>
+            <if test="edit != null">
+                `edit` ,
+            </if>
+            <if test="orderNum != null">
+                `order_num` ,
+            </if>
+            <if test="remark != null">
+                `remark` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="parentKey != null">
+                #{parentKey} ,
+            </if>
+            <if test="displayName != null">
+                #{displayName} ,
+            </if>
+            <if test="key != null">
+                #{key} ,
+            </if>
+            <if test="value != null">
+                #{value} ,
+            </if>
+            <if test="status != null">
+                #{status} ,
+            </if>
+            <if test="type != null">
+                #{type} ,
+            </if>
+            <if test="edit != null">
+                #{edit} ,
+            </if>
+            <if test="orderNum != null">
+                #{orderNum} ,
+            </if>
+            <if test="remark != null">
+                #{remark} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.common.entity.MacroUpdateEntity">
+        update `sys_macro`
+        <set>
+            <if test="displayName != null">
+                `display_name` = #{displayName} ,
+            </if>
+            <if test="parentKey != null">
+                `parent_key` = #{parentKey} ,
+            </if>
+            <if test="key != null">
+                `key` = #{key} ,
+            </if>
+            <if test="value != null">
+                `value` = #{value} ,
+            </if>
+            <if test="status != null">
+                `status` = #{status} ,
+            </if>
+            <if test="type != null">
+                `type` = #{type} ,
+            </if>
+            <if test="edit != null">
+                `edit` = #{edit} ,
+            </if>
+            <if test="orderNum != null">
+                `order_num` = #{orderNum} ,
+            </if>
+            <if test="remark != null">
+                `remark` = #{remark} ,
+            </if>
+            `update_time` = now() ,
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <update id="delete">
+        update `sys_macro` set delete_time = now() where `id` = #{value}
+    </update>
+
+    <update id="deleteBatch">
+        update `sys_macro` set delete_time = now() where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>

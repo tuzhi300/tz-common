@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.common.dao.AreaDao">
+
+    <resultMap id="areaMap" type="net.kuper.tz.common.entity.AreaEntity">
+        <result property="id" column="id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="name" column="name"/>
+        <result property="shortName" column="short_name"/>
+        <result property="longitude" column="longitude"/>
+        <result property="latitude" column="latitude"/>
+        <result property="level" column="level"/>
+        <result property="sort" column="sort"/>
+        <result property="status" column="status"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="delete_time"/>
+        <result property="parentName" column="parent_name"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`parent_id` ,
+        `t`.`name` ,
+        `t`.`short_name` ,
+        `t`.`longitude` ,
+        `t`.`latitude` ,
+        `t`.`level` ,
+        `t`.`sort` ,
+        `t`.`status` ,
+        `t`.`update_time` ,
+        `t`.`create_time` ,
+        `t`.`delete_time`
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="columns"/>,
+        p.name as parent_name
+        from  `sys_area` as `t`
+        left join sys_area p on p.id = t.parent_id
+    </sql>
+
+    <sql id="dft_where">
+        <if test="parentId != null">
+            AND `t`.`parent_id` = #{parentId}
+        </if>
+        <if test="name != null and name.trim() != ''">
+            AND `t`.`name` LIKE concat('%',#{name} ,'%')
+        </if>
+        <if test="shortName != null and shortName.trim() != ''">
+            AND `t`.`short_name` LIKE concat('%',#{shortName} ,'%')
+        </if>
+        <if test="level != null">
+            AND `t`.`level` = #{level}
+        </if>
+        <if test="sort != null">
+            AND `t`.`sort` = #{sort}
+        </if>
+        <if test="status != null">
+            AND `t`.`status` = #{status}
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'parentId' == sidx ">
+                        order by `t`.`parent_id`
+                    </when>
+                    <when test="'name' == sidx ">
+                        order by `t`.`name`
+                    </when>
+                    <when test="'shortName' == sidx ">
+                        order by `t`.`short_name`
+                    </when>
+                    <when test="'level' == sidx ">
+                        order by `t`.`level`
+                    </when>
+                    <when test="'sort' == sidx ">
+                        order by `t`.`sort`
+                    </when>
+                    <when test="'status' == sidx ">
+                        order by `t`.`status`
+                    </when>
+                    <otherwise>
+                        order by `t`.`id`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`sort`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'DESC'">
+                DESC
+            </when>
+            <otherwise>
+                ASC
+            </otherwise>
+        </choose>
+    </sql>
+    
+
+
+    <select id="queryObject" resultMap="areaMap">
+        <include refid="select_normal"/>
+        where `t`.`id` = #{value}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="areaMap">
+        <include refid="select_normal"/>
+        WHERE 1 = 1
+        <include refid="dft_where"/>
+        <include refid="dft_order"/>
+    </select>
+
+    <select id="getPath" parameterType="map" resultType="java.lang.String">
+        select concat('0/', group_concat(tp.id separator '/'))
+        from (
+                 SELECT T2.id, T2.parent_id
+                 FROM (
+                          SELECT @r                                                    AS _id,
+                                 (SELECT @r := parent_id FROM sys_area WHERE id = _id) AS 2v2,
+                                 @l := @l + 1                                          AS lvl
+                          FROM (SELECT @r := #{id}) vars,
+                               sys_area h
+                          WHERE @r != 0) T1
+                          JOIN sys_area T2
+                               ON T1._id = T2.id
+                 order by t2.id asc
+             ) tp
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.common.entity.AreaUpdateEntity" >
+        insert into `sys_area`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="parentId != null">
+                `parent_id` ,
+            </if>
+            <if test="name != null">
+                `name` ,
+            </if>
+            <if test="shortName != null">
+                `short_name` ,
+            </if>
+            <if test="longitude != null">
+                `longitude` ,
+            </if>
+            <if test="latitude != null">
+                `latitude` ,
+            </if>
+            <if test="level != null">
+                `level` ,
+            </if>
+            <if test="sort != null">
+                `sort` ,
+            </if>
+            <if test="status != null">
+                `status` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="parentId != null">
+                #{parentId} ,
+            </if>
+            <if test="name != null">
+                #{name} ,
+            </if>
+            <if test="shortName != null">
+                #{shortName} ,
+            </if>
+            <if test="longitude != null">
+                #{longitude} ,
+            </if>
+            <if test="latitude != null">
+                #{latitude} ,
+            </if>
+            <if test="level != null">
+                #{level} ,
+            </if>
+            <if test="sort != null">
+                #{sort} ,
+            </if>
+            <if test="status != null">
+                #{status} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.common.entity.AreaUpdateEntity">
+        update `sys_area`
+        <set>
+            <if test="parentId != null">
+                `parent_id` = #{parentId} ,
+            </if>
+            <if test="name != null">
+                `name` = #{name} ,
+            </if>
+            <if test="shortName != null">
+                `short_name` = #{shortName} ,
+            </if>
+            <if test="longitude != null">
+                `longitude` = #{longitude} ,
+            </if>
+            <if test="latitude != null">
+                `latitude` = #{latitude} ,
+            </if>
+            <if test="level != null">
+                `level` = #{level} ,
+            </if>
+            <if test="sort != null">
+                `sort` = #{sort} ,
+            </if>
+            <if test="status != null">
+                `status` = #{status} ,
+            </if>
+            `update_time` = now() ,
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <update id="delete">
+        update `sys_area` set delete_time = now() , `update_time` = now() where `id` = #{value}
+    </update>
+
+    <update id="deleteBatch">
+        update `sys_area` set delete_time = now(), `update_time` = now()  where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>

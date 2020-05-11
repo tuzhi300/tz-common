@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.common.dao.LogDao">
+
+    <resultMap id="logMap" type="net.kuper.tz.common.entity.LogEntity">
+        <result property="id" column="id"/>
+        <result property="servletPath" column="servlet_path"/>
+        <result property="operation" column="operation"/>
+        <result property="method" column="method"/>
+        <result property="params" column="params"/>
+        <result property="time" column="time"/>
+        <result property="ip" column="ip"/>
+        <result property="ipLocationId" column="ip_location_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="userType" column="user_type"/>
+        <result property="browerName" column="brower_name"/>
+        <result property="browerVersion" column="brower_version"/>
+        <result property="browerType" column="brower_type"/>
+        <result property="osName" column="os_name"/>
+        <result property="osVersion" column="os_version"/>
+        <result property="result" column="result"/>
+        <result property="type" column="type"/>
+        <result property="serVersion" column="ser_version"/>
+        <result property="serBuildTime" column="ser_build_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="delete_time"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`servlet_path` ,
+        `t`.`operation` ,
+        `t`.`method` ,
+        `t`.`params` ,
+        `t`.`time` ,
+        `t`.`ip` ,
+        `t`.`ip_location_id` ,
+        `t`.`user_id` ,
+        `t`.`user_type` ,
+        `t`.`brower_name` ,
+        `t`.`brower_version` ,
+        `t`.`brower_type` ,
+        `t`.`os_name` ,
+        `t`.`os_version` ,
+        `t`.`result` ,
+        `t`.`type` ,
+        `t`.`ser_version` ,
+        `t`.`ser_build_time` ,
+        `t`.`update_time` ,
+        `t`.`create_time` ,
+        `t`.`delete_time`
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="columns"/>
+        from `sys_log` as `t`
+    </sql>
+
+    <sql id="dft_where">
+        <if test="servletPath != null and servletPath.trim() != ''">
+            AND `t`.`servlet_path` LIKE concat('%',#{servletPath} ,'%')
+        </if>
+        <if test="operation != null and operation.trim() != ''">
+            AND `t`.`operation` LIKE concat('%',#{operation} ,'%')
+        </if>
+        <if test="method != null and method.trim() != ''">
+            AND `t`.`method` LIKE concat('%',#{method} ,'%')
+        </if>
+        <if test="params != null and params.trim() != ''">
+            AND `t`.`params` LIKE concat('%',#{params} ,'%')
+        </if>
+        <if test="time != null">
+            AND `t`.`time` = #{time}
+        </if>
+        <if test="ip != null and ip.trim() != ''">
+            AND `t`.`ip` LIKE concat('%',#{ip} ,'%')
+        </if>
+        <if test="ipLocationId != null and ipLocationId.trim() != ''">
+            AND `t`.`ip_location_id` LIKE concat('%',#{ipLocationId} ,'%')
+        </if>
+        <if test="userId != null">
+            AND `t`.`user_id` = #{userId}
+        </if>
+        <if test="userType != null">
+            AND `t`.`user_type` = #{userType}
+        </if>
+        <if test="browerName != null and browerName.trim() != ''">
+            AND `t`.`brower_name` LIKE concat('%',#{browerName} ,'%')
+        </if>
+        <if test="browerVersion != null and browerVersion.trim() != ''">
+            AND `t`.`brower_version` LIKE concat('%',#{browerVersion} ,'%')
+        </if>
+        <if test="browerType != null and browerType.trim() != ''">
+            AND `t`.`brower_type` LIKE concat('%',#{browerType} ,'%')
+        </if>
+        <if test="osName != null and osName.trim() != ''">
+            AND `t`.`os_name` LIKE concat('%',#{osName} ,'%')
+        </if>
+        <if test="osVersion != null and osVersion.trim() != ''">
+            AND `t`.`os_version` LIKE concat('%',#{osVersion} ,'%')
+        </if>
+        <if test="result != null and result.trim() != ''">
+            AND `t`.`result` LIKE concat('%',#{result} ,'%')
+        </if>
+        <if test="type != null and type.trim() != ''">
+            AND `t`.`type` LIKE concat('%',#{type} ,'%')
+        </if>
+        <if test="serVersion != null and serVersion.trim() != ''">
+            AND `t`.`ser_version` LIKE concat('%',#{serVersion} ,'%')
+        </if>
+        <if test="serBuildTime != null">
+            AND date_format(`t`.`ser_build_time`,'%Y-%m-%d') = date_format(#{serBuildTime},'%Y-%m-%d')
+        </if>
+        <if test="updateTime != null">
+            AND date_format(`t`.`update_time`,'%Y-%m-%d') = date_format(#{updateTime},'%Y-%m-%d')
+        </if>
+        <if test="createTime != null">
+            AND date_format(`t`.`create_time`,'%Y-%m-%d') = date_format(#{createTime},'%Y-%m-%d')
+        </if>
+        <if test="deleteTime != null">
+            AND date_format(`t`.`delete_time`,'%Y-%m-%d') = date_format(#{deleteTime},'%Y-%m-%d')
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'servletPath' == sidx ">
+                        order by `t`.`servlet_path`
+                    </when>
+                    <when test="'operation' == sidx ">
+                        order by `t`.`operation`
+                    </when>
+                    <when test="'method' == sidx ">
+                        order by `t`.`method`
+                    </when>
+                    <when test="'params' == sidx ">
+                        order by `t`.`params`
+                    </when>
+                    <when test="'time' == sidx ">
+                        order by `t`.`time`
+                    </when>
+                    <when test="'ip' == sidx ">
+                        order by `t`.`ip`
+                    </when>
+                    <when test="'ipLocationId' == sidx ">
+                        order by `t`.`ip_location_id`
+                    </when>
+                    <when test="'userId' == sidx ">
+                        order by `t`.`user_id`
+                    </when>
+                    <when test="'userType' == sidx ">
+                        order by `t`.`user_type`
+                    </when>
+                    <when test="'browerName' == sidx ">
+                        order by `t`.`brower_name`
+                    </when>
+                    <when test="'browerVersion' == sidx ">
+                        order by `t`.`brower_version`
+                    </when>
+                    <when test="'browerType' == sidx ">
+                        order by `t`.`brower_type`
+                    </when>
+                    <when test="'osName' == sidx ">
+                        order by `t`.`os_name`
+                    </when>
+                    <when test="'osVersion' == sidx ">
+                        order by `t`.`os_version`
+                    </when>
+                    <when test="'result' == sidx ">
+                        order by `t`.`result`
+                    </when>
+                    <when test="'type' == sidx ">
+                        order by `t`.`type`
+                    </when>
+                    <when test="'serVersion' == sidx ">
+                        order by `t`.`ser_version`
+                    </when>
+                    <when test="'serBuildTime' == sidx ">
+                        order by `t`.`ser_build_time`
+                    </when>
+                    <when test="'updateTime' == sidx ">
+                        order by `t`.`update_time`
+                    </when>
+                    <when test="'createTime' == sidx ">
+                        order by `t`.`create_time`
+                    </when>
+                    <when test="'deleteTime' == sidx ">
+                        order by `t`.`delete_time`
+                    </when>
+                    <otherwise>
+                        order by `t`.`create_time`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`create_time`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'DESC'">
+                DESC
+            </when>
+            <otherwise>
+                ASC
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <select id="queryObject" resultMap="logMap">
+        <include refid="select_normal"/>
+        where `t`.`id` = #{value}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="logMap">
+        <include refid="select_normal"/>
+        WHERE 1 = 1
+        <include refid="dft_where"/>
+        <include refid="dft_order"/>
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.common.entity.LogUpdateEntity">
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select REPLACE(UUID(),'-','') from dual
+        </selectKey>
+        insert into `sys_log`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="servletPath != null">
+                `servlet_path` ,
+            </if>
+            <if test="operation != null">
+                `operation` ,
+            </if>
+            <if test="method != null">
+                `method` ,
+            </if>
+            <if test="params != null">
+                `params` ,
+            </if>
+            <if test="time != null">
+                `time` ,
+            </if>
+            <if test="ip != null">
+                `ip` ,
+            </if>
+            <if test="ipLocationId != null">
+                `ip_location_id` ,
+            </if>
+            <if test="userId != null">
+                `user_id` ,
+            </if>
+            <if test="userType != null">
+                `user_type` ,
+            </if>
+            <if test="browerName != null">
+                `brower_name` ,
+            </if>
+            <if test="browerVersion != null">
+                `brower_version` ,
+            </if>
+            <if test="browerType != null">
+                `brower_type` ,
+            </if>
+            <if test="osName != null">
+                `os_name` ,
+            </if>
+            <if test="osVersion != null">
+                `os_version` ,
+            </if>
+            <if test="result != null">
+                `result` ,
+            </if>
+            <if test="type != null">
+                `type` ,
+            </if>
+            <if test="serVersion != null">
+                `ser_version` ,
+            </if>
+            <if test="serBuildTime != null">
+                `ser_build_time` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="servletPath != null">
+                #{servletPath} ,
+            </if>
+            <if test="operation != null">
+                #{operation} ,
+            </if>
+            <if test="method != null">
+                #{method} ,
+            </if>
+            <if test="params != null">
+                #{params} ,
+            </if>
+            <if test="time != null">
+                #{time} ,
+            </if>
+            <if test="ip != null">
+                #{ip} ,
+            </if>
+            <if test="ipLocationId != null">
+                #{ipLocationId} ,
+            </if>
+            <if test="userId != null">
+                #{userId} ,
+            </if>
+            <if test="userType != null">
+                #{userType} ,
+            </if>
+            <if test="browerName != null">
+                #{browerName} ,
+            </if>
+            <if test="browerVersion != null">
+                #{browerVersion} ,
+            </if>
+            <if test="browerType != null">
+                #{browerType} ,
+            </if>
+            <if test="osName != null">
+                #{osName} ,
+            </if>
+            <if test="osVersion != null">
+                #{osVersion} ,
+            </if>
+            <if test="result != null">
+                #{result} ,
+            </if>
+            <if test="type != null">
+                #{type} ,
+            </if>
+            <if test="serVersion != null">
+                #{serVersion} ,
+            </if>
+            <if test="serBuildTime != null">
+                #{serBuildTime} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.common.entity.LogUpdateEntity">
+        update `sys_log`
+        <set>
+            <if test="servletPath != null">
+                `servlet_path` = #{servletPath} ,
+            </if>
+            <if test="operation != null">
+                `operation` = #{operation} ,
+            </if>
+            <if test="method != null">
+                `method` = #{method} ,
+            </if>
+            <if test="params != null">
+                `params` = #{params} ,
+            </if>
+            <if test="time != null">
+                `time` = #{time} ,
+            </if>
+            <if test="ip != null">
+                `ip` = #{ip} ,
+            </if>
+            <if test="ipLocationId != null">
+                `ip_location_id` = #{ipLocationId} ,
+            </if>
+            <if test="userId != null">
+                `user_id` = #{userId} ,
+            </if>
+            <if test="userType != null">
+                `user_type` = #{userType} ,
+            </if>
+            <if test="browerName != null">
+                `brower_name` = #{browerName} ,
+            </if>
+            <if test="browerVersion != null">
+                `brower_version` = #{browerVersion} ,
+            </if>
+            <if test="browerType != null">
+                `brower_type` = #{browerType} ,
+            </if>
+            <if test="osName != null">
+                `os_name` = #{osName} ,
+            </if>
+            <if test="osVersion != null">
+                `os_version` = #{osVersion} ,
+            </if>
+            <if test="result != null">
+                `result` = #{result} ,
+            </if>
+            <if test="type != null">
+                `type` = #{type} ,
+            </if>
+            <if test="serVersion != null">
+                `ser_version` = #{serVersion} ,
+            </if>
+            <if test="serBuildTime != null">
+                `ser_build_time` = #{serBuildTime} ,
+            </if>
+            `update_time` = now() ,
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <update id="delete">
+        update `sys_log` set delete_time = now(),`update_time` = now()  where `id` = #{value}
+    </update>
+
+    <update id="deleteBatch">
+        update `sys_log` set delete_time = now(),`update_time` = now() where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>

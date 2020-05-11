@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.common.dao.RequestLimitDao">
+
+    <resultMap id="requestLimitMap" type="net.kuper.tz.common.entity.RequestLimitEntity">
+        <result property="id" column="id"/>
+        <result property="ip" column="ip"/>
+        <result property="limitId" column="limit_id"/>
+        <result property="sessionId" column="session_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="url" column="url"/>
+        <result property="description" column="description"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="delete_time"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`ip` ,
+        `t`.`limit_id` ,
+        `t`.`session_id` ,
+        `t`.`user_id` ,
+        `t`.`url` ,
+        `t`.`description` ,
+        `t`.`update_time` ,
+        `t`.`create_time` ,
+        `t`.`delete_time`
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="columns"/>
+        from `sys_request_limit` as `t`
+    </sql>
+
+    <sql id="dft_where">
+        <if test="ip != null and ip.trim() != ''">
+            AND `t`.`ip` LIKE concat('%',#{ip} ,'%')
+        </if>
+        <if test="limitId != null and limitId.trim() != ''">
+            AND `t`.`limit_id` LIKE concat('%',#{limitId} ,'%')
+        </if>
+        <if test="sessionId != null and sessionId.trim() != ''">
+            AND `t`.`session_id` LIKE concat('%',#{sessionId} ,'%')
+        </if>
+        <if test="userId != null and userId.trim() != ''">
+            AND `t`.`user_id` LIKE concat('%',#{userId} ,'%')
+        </if>
+        <if test="url != null and url.trim() != ''">
+            AND `t`.`url` LIKE concat('%',#{url} ,'%')
+        </if>
+        <if test="description != null and description.trim() != ''">
+            AND `t`.`description` LIKE concat('%',#{description} ,'%')
+        </if>
+        <if test="updateTime != null">
+            AND date_format(`t`.`update_time`,'%Y-%m-%d') = date_format(#{updateTime},'%Y-%m-%d')
+        </if>
+        <if test="createTime != null">
+            AND date_format(`t`.`create_time`,'%Y-%m-%d') = date_format(#{createTime},'%Y-%m-%d')
+        </if>
+        <if test="deleteTime != null">
+            AND date_format(`t`.`delete_time`,'%Y-%m-%d') = date_format(#{deleteTime},'%Y-%m-%d')
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'ip' == sidx ">
+                        order by `t`.`ip`
+                    </when>
+                    <when test="'limitId' == sidx ">
+                        order by `t`.`limit_id`
+                    </when>
+                    <when test="'sessionId' == sidx ">
+                        order by `t`.`session_id`
+                    </when>
+                    <when test="'userId' == sidx ">
+                        order by `t`.`user_id`
+                    </when>
+                    <when test="'url' == sidx ">
+                        order by `t`.`url`
+                    </when>
+                    <when test="'description' == sidx ">
+                        order by `t`.`description`
+                    </when>
+                    <when test="'updateTime' == sidx ">
+                        order by `t`.`update_time`
+                    </when>
+                    <when test="'createTime' == sidx ">
+                        order by `t`.`create_time`
+                    </when>
+                    <when test="'deleteTime' == sidx ">
+                        order by `t`.`delete_time`
+                    </when>
+                    <otherwise>
+                        order by `t`.`create_time`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`create_time`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'ASC'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <select id="queryObject" resultMap="requestLimitMap">
+        <include refid="select_normal"/>
+        where `t`.`id` = #{value}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="requestLimitMap">
+        <include refid="select_normal"/>
+        WHERE 1 = 1
+        <include refid="dft_where"/>
+        <include refid="dft_order"/>
+    </select>
+
+    <select id="queryUserCount" parameterType="map" resultType="java.lang.Long">
+        select count(0)
+        from sys_request_limit srl
+        where srl.delete_time is null
+          and srl.limit_id = #{limitId}
+          and srl.user_id = #{userId}
+          and srl.create_time >= #{date}
+    </select>
+
+    <select id="querySessionCount" parameterType="map" resultType="java.lang.Long">
+        select count(0)
+        from sys_request_limit srl
+        where srl.delete_time is null
+          and srl.limit_id = #{limitId}
+          and srl.session_id = #{sessionId}
+          and srl.create_time >= #{date}
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.common.entity.RequestLimitUpdateEntity">
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select REPLACE(UUID(),'-','') from dual
+        </selectKey>
+        insert into `sys_request_limit`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="ip != null">
+                `ip` ,
+            </if>
+            <if test="limitId != null">
+                `limit_id` ,
+            </if>
+            <if test="sessionId != null">
+                `session_id` ,
+            </if>
+            <if test="userId != null">
+                `user_id` ,
+            </if>
+            <if test="url != null">
+                `url` ,
+            </if>
+            <if test="description != null">
+                `description` ,
+            </if>
+            <if test="updateTime != null">
+                `update_time` ,
+            </if>
+            <if test="createTime != null">
+                `create_time` ,
+            </if>
+            <if test="deleteTime != null">
+                `delete_time` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="ip != null">
+                #{ip} ,
+            </if>
+            <if test="limitId != null">
+                #{limitId} ,
+            </if>
+            <if test="sessionId != null">
+                #{sessionId} ,
+            </if>
+            <if test="userId != null">
+                #{userId} ,
+            </if>
+            <if test="url != null">
+                #{url} ,
+            </if>
+            <if test="description != null">
+                #{description} ,
+            </if>
+            <if test="updateTime != null">
+                #{updateTime} ,
+            </if>
+            <if test="createTime != null">
+                #{createTime} ,
+            </if>
+            <if test="deleteTime != null">
+                #{deleteTime} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.common.entity.RequestLimitUpdateEntity">
+        update `sys_request_limit`
+        <set>
+            <if test="ip != null">
+                `ip` = #{ip} ,
+            </if>
+            <if test="limitId != null">
+                `limit_id` = #{limitId} ,
+            </if>
+            <if test="sessionId != null">
+                `session_id` = #{sessionId} ,
+            </if>
+            <if test="userId != null">
+                `user_id` = #{userId} ,
+            </if>
+            <if test="url != null">
+                `url` = #{url} ,
+            </if>
+            <if test="description != null">
+                `description` = #{description} ,
+            </if>
+            <if test="updateTime != null">
+                `update_time` = #{updateTime} ,
+            </if>
+            <if test="createTime != null">
+                `create_time` = #{createTime} ,
+            </if>
+            <if test="deleteTime != null">
+                `delete_time` = #{deleteTime} ,
+            </if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <update id="delete">
+        update `sys_request_limit` set delete_time = now() where `id` = #{value}
+    </update>
+
+    <update id="deleteBatch">
+        update `sys_request_limit` set delete_time = now() where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>

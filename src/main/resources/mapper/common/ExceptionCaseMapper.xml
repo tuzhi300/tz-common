@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.kuper.tz.common.dao.ExceptionCaseDao">
+
+    <resultMap id="exceptionCaseMap" type="net.kuper.tz.common.entity.ExceptionCaseEntity">
+        <result property="id" column="id"/>
+        <result property="exceptionId" column="exception_id"/>
+        <result property="serVersion" column="ser_version"/>
+        <result property="serBuildTime" column="ser_build_time"/>
+        <result property="servletPath" column="servlet_path"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="columns">
+        `t`.`id` ,
+        `t`.`exception_id` ,
+        `t`.`ser_version` ,
+        `t`.`ser_build_time` ,
+        `t`.`servlet_path` ,
+        `t`.`create_time` 
+    </sql>
+
+    <sql id="select_normal">
+        select
+        <include refid="columns"/>
+        from  `sys_exception_case` as `t`
+    </sql>
+
+    <sql id="dft_where">
+        <if test="exceptionId != null and exceptionId.trim() != ''">
+            AND `t`.`exception_id` LIKE concat('%',#{exceptionId} ,'%')
+        </if>
+        <if test="serVersion != null and serVersion.trim() != ''">
+            AND `t`.`ser_version` LIKE concat('%',#{serVersion} ,'%')
+        </if>
+        <if test="serBuildTime != null and serBuildTime.trim() != ''">
+            AND `t`.`ser_build_time` LIKE concat('%',#{serBuildTime} ,'%')
+        </if>
+        <if test="servletPath != null and servletPath.trim() != ''">
+            AND `t`.`servlet_path` LIKE concat('%',#{servletPath} ,'%')
+        </if>
+        <if test="createTime != null">
+            AND date_format(`t`.`create_time`,'%Y-%m-%d') = date_format(#{createTime},'%Y-%m-%d')
+        </if>
+    </sql>
+
+    <sql id="dft_order">
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                <choose>
+                    <when test="'exceptionId' == sidx ">
+                        order by `t`.`exception_id`
+                    </when>
+                    <when test="'serVersion' == sidx ">
+                        order by `t`.`ser_version`
+                    </when>
+                    <when test="'serBuildTime' == sidx ">
+                        order by `t`.`ser_build_time`
+                    </when>
+                    <when test="'servletPath' == sidx ">
+                        order by `t`.`servlet_path`
+                    </when>
+                    <when test="'createTime' == sidx ">
+                        order by `t`.`create_time`
+                    </when>
+                    <otherwise>
+                        order by `t`.`create_time`
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by `t`.`create_time`
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="stype == 'ASC'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+
+    <select id="queryObject" resultMap="exceptionCaseMap">
+        <include refid="select_normal"/>
+        where `t`.`id` = #{value}
+    </select>
+
+    <select id="queryList" parameterType="map" resultMap="exceptionCaseMap">
+        <include refid="select_normal"/>
+        WHERE 1 = 1
+        <include refid="dft_where"/>
+        <include refid="dft_order"/>
+    </select>
+
+    <insert id="save" parameterType="net.kuper.tz.common.entity.ExceptionCaseUpdateEntity" >
+        <selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select REPLACE(UUID(),'-','') from dual
+        </selectKey>
+        insert into `sys_exception_case`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id` ,
+            </if>
+            <if test="exceptionId != null">
+                `exception_id` ,
+            </if>
+            <if test="serVersion != null">
+                `ser_version` ,
+            </if>
+            <if test="serBuildTime != null">
+                `ser_build_time` ,
+            </if>
+            <if test="servletPath != null">
+                `servlet_path` ,
+            </if>
+            <if test="createTime != null">
+                `create_time` ,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id} ,
+            </if>
+            <if test="exceptionId != null">
+                #{exceptionId} ,
+            </if>
+            <if test="serVersion != null">
+                #{serVersion} ,
+            </if>
+            <if test="serBuildTime != null">
+                #{serBuildTime} ,
+            </if>
+            <if test="servletPath != null">
+                #{servletPath} ,
+            </if>
+            <if test="createTime != null">
+                #{createTime} ,
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="net.kuper.tz.common.entity.ExceptionCaseUpdateEntity">
+        update `sys_exception_case`
+        <set>
+            <if test="exceptionId != null">
+                `exception_id` = #{exceptionId} ,
+            </if>
+            <if test="serVersion != null">
+                `ser_version` = #{serVersion} ,
+            </if>
+            <if test="serBuildTime != null">
+                `ser_build_time` = #{serBuildTime} ,
+            </if>
+            <if test="servletPath != null">
+                `servlet_path` = #{servletPath} ,
+            </if>
+            <if test="createTime != null">
+                `create_time` = #{createTime} ,
+            </if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <delete id="delete">
+        delete from `sys_exception_case` where `id` = #{value}
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from `sys_exception_case` where `id` in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+</mapper>
